@@ -87,28 +87,45 @@ export const SpecialistTeamAnimation: React.FC = () => {
     }
 
     return (
-      <svg className="w-full h-full drop-shadow-2xl" viewBox="0 0 400 280" preserveAspectRatio="xMidYMid meet">
+      <svg 
+        className="w-full h-full" 
+        viewBox="0 0 400 280" 
+        preserveAspectRatio="xMidYMid meet"
+        style={{ shapeRendering: 'geometricPrecision' }}
+      >
         <defs>
+          {/* Smooth gradients for car body */}
           <linearGradient id="carBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#06b6d4" stopOpacity={opacity.body} />
+            <stop offset="0%" stopColor="#22d3ee" stopOpacity={opacity.body} />
+            <stop offset="50%" stopColor="#06b6d4" stopOpacity={opacity.body} />
             <stop offset="100%" stopColor="#0891b2" stopOpacity={opacity.body} />
           </linearGradient>
 
-          <linearGradient id="wheelGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#06b6d4" stopOpacity={opacity.wheels} />
-            <stop offset="100%" stopColor="#164e63" stopOpacity={opacity.wheels} />
+          {/* Highlight gradient for 3D effect */}
+          <linearGradient id="carHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#67e8f9" stopOpacity={opacity.body * 0.4} />
+            <stop offset="100%" stopColor="#06b6d4" stopOpacity={opacity.body * 0.1} />
           </linearGradient>
 
-          <filter id="carGlow">
-            <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+          {/* Wheel gradient */}
+          <radialGradient id="wheelGrad" cx="50%" cy="50%">
+            <stop offset="0%" stopColor="#164e63" stopOpacity={opacity.wheels} />
+            <stop offset="70%" stopColor="#0e7490" stopOpacity={opacity.wheels} />
+            <stop offset="100%" stopColor="#06b6d4" stopOpacity={opacity.wheels * 0.5} />
+          </radialGradient>
+
+          {/* Subtle glow filter */}
+          <filter id="carGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="4" result="coloredBlur" />
             <feMerge>
               <feMergeNode in="coloredBlur" />
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
 
-          <filter id="headlightGlow">
-            <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+          {/* Headlight glow */}
+          <filter id="headlightGlow" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="6" result="coloredBlur" />
             <feMerge>
               <feMergeNode in="coloredBlur" />
               <feMergeNode in="SourceGraphic" />
@@ -116,151 +133,285 @@ export const SpecialistTeamAnimation: React.FC = () => {
           </filter>
         </defs>
 
-        {/* Shadow */}
-        <ellipse cx="200" cy="260" rx="140" ry="15" fill="#000000" opacity="0.15" />
+        {/* Ground shadow - smooth ellipse */}
+        <ellipse 
+          cx="200" 
+          cy="260" 
+          rx="130" 
+          ry="12" 
+          fill="#000000" 
+          opacity="0.2"
+          style={{ filter: 'blur(8px)' }}
+        />
 
-        {/* Car Body - Premium 3D perspective */}
-        <g filter={completionPhase >= 4 ? "url(#carGlow)" : ""}>
-          {/* Main chassis - 3D perspective */}
-          <path
-            d="M 80 160 L 320 160 L 330 140 L 70 140 Z"
+        {/* Car Body Group */}
+        <g filter={completionPhase >= 4 ? "url(#carGlow)" : undefined}>
+          {/* Main body - smooth rounded rectangle */}
+          <rect
+            x="85"
+            y="135"
+            width="230"
+            height="35"
+            rx="5"
             fill="url(#carBodyGrad)"
-            stroke="#06b6d4"
-            strokeWidth="2"
-            opacity={opacity.body}
-            className="transition-all duration-700"
-          />
-
-          {/* Car body with windshield */}
-          <path
-            d="M 100 140 L 300 140 Q 310 130 310 100 L 90 100 Q 90 130 100 140"
-            fill="url(#carBodyGrad)"
-            stroke="#06b6d4"
-            strokeWidth="2"
-            opacity={opacity.body}
-            className="transition-all duration-700"
-          />
-
-          {/* Roof */}
-          <path
-            d="M 110 100 L 290 100 L 280 70 L 120 70 Z"
-            fill="url(#carBodyGrad)"
-            stroke="#06b6d4"
-            strokeWidth="2"
-            opacity={opacity.body}
-            className="transition-all duration-700"
-          />
-
-          {/* Front windshield */}
-          <path
-            d="M 90 100 L 110 100 L 120 70 L 85 85 Z"
-            fill="#e0f2fe"
             stroke="#06b6d4"
             strokeWidth="1.5"
-            opacity={opacity.details * 0.6}
+            opacity={opacity.body}
+            className="transition-all duration-700"
+          />
+
+          {/* Car cabin - smooth shape */}
+          <path
+            d="M 95 135 L 305 135 L 310 95 L 90 95 Z"
+            fill="url(#carBodyGrad)"
+            stroke="#06b6d4"
+            strokeWidth="1.5"
+            opacity={opacity.body}
+            className="transition-all duration-700"
+          />
+
+          {/* Roof section */}
+          <rect
+            x="110"
+            y="75"
+            width="180"
+            height="30"
+            rx="3"
+            fill="url(#carBodyGrad)"
+            stroke="#06b6d4"
+            strokeWidth="1.5"
+            opacity={opacity.body}
+            className="transition-all duration-700"
+          />
+
+          {/* Highlight on roof for 3D effect */}
+          <rect
+            x="110"
+            y="75"
+            width="180"
+            height="15"
+            rx="3"
+            fill="url(#carHighlight)"
+            opacity={opacity.body}
+            className="transition-all duration-700"
+          />
+
+          {/* Front windshield - smooth curved shape */}
+          <path
+            d="M 90 95 Q 95 85 110 75 L 110 95 Z"
+            fill="#bae6fd"
+            stroke="#38bdf8"
+            strokeWidth="1"
+            opacity={opacity.details * 0.7}
             className="transition-all duration-700"
           />
 
           {/* Rear windshield */}
           <path
-            d="M 290 100 L 310 100 L 315 85 L 280 70 Z"
-            fill="#e0f2fe"
-            stroke="#06b6d4"
-            strokeWidth="1.5"
-            opacity={opacity.details * 0.6}
+            d="M 305 95 L 290 75 L 290 95 Z"
+            fill="#bae6fd"
+            stroke="#38bdf8"
+            strokeWidth="1"
+            opacity={opacity.details * 0.7}
             className="transition-all duration-700"
           />
 
-          {/* Side windows */}
+          {/* Side windows - clean rectangles */}
           <rect
-            x="130"
-            y="85"
-            width="35"
-            height="25"
-            fill="#e0f2fe"
-            stroke="#06b6d4"
-            strokeWidth="1.5"
-            opacity={opacity.details * 0.6}
+            x="135"
+            y="80"
+            width="40"
+            height="20"
+            rx="2"
+            fill="#bae6fd"
+            stroke="#38bdf8"
+            strokeWidth="1"
+            opacity={opacity.details * 0.7}
             className="transition-all duration-700"
           />
           <rect
-            x="235"
-            y="85"
-            width="35"
-            height="25"
-            fill="#e0f2fe"
-            stroke="#06b6d4"
-            strokeWidth="1.5"
-            opacity={opacity.details * 0.6}
+            x="225"
+            y="80"
+            width="40"
+            height="20"
+            rx="2"
+            fill="#bae6fd"
+            stroke="#38bdf8"
+            strokeWidth="1"
+            opacity={opacity.details * 0.7}
+            className="transition-all duration-700"
+          />
+
+          {/* Body highlight stripe */}
+          <rect
+            x="95"
+            y="140"
+            width="210"
+            height="3"
+            fill="url(#carHighlight)"
+            opacity={opacity.body * 0.6}
             className="transition-all duration-700"
           />
         </g>
 
-        {/* Wheels */}
+        {/* Wheels - smooth circles */}
         <g opacity={opacity.wheels} className="transition-all duration-700">
           {/* Left wheel */}
           <g>
-            <circle cx="120" cy="165" r="30" fill="url(#wheelGrad)" stroke="#0891b2" strokeWidth="2" />
-            <circle cx="120" cy="165" r="22" fill="none" stroke="#06b6d4" strokeWidth="1.5" opacity="0.6" />
-            <circle cx="120" cy="165" r="14" fill="none" stroke="#06b6d4" strokeWidth="1.5" opacity="0.6" />
-            <line x1="120" y1="151" x2="120" y2="179" stroke="#06b6d4" strokeWidth="1.5" opacity="0.4" />
-            <line x1="106" y1="165" x2="134" y2="165" stroke="#06b6d4" strokeWidth="1.5" opacity="0.4" />
+            {/* Wheel shadow */}
+            <ellipse cx="120" cy="172" rx="28" ry="5" fill="#000000" opacity="0.3" />
+            {/* Wheel outer rim */}
+            <circle 
+              cx="120" 
+              cy="165" 
+              r="28" 
+              fill="url(#wheelGrad)" 
+              stroke="#0891b2" 
+              strokeWidth="2"
+            />
+            {/* Wheel inner rim */}
+            <circle 
+              cx="120" 
+              cy="165" 
+              r="20" 
+              fill="#164e63" 
+              stroke="#06b6d4" 
+              strokeWidth="1"
+              opacity="0.8"
+            />
+            {/* Wheel center */}
+            <circle 
+              cx="120" 
+              cy="165" 
+              r="12" 
+              fill="#0e7490" 
+              stroke="#06b6d4" 
+              strokeWidth="1.5"
+            />
+            {/* Wheel spokes */}
+            <line x1="120" y1="153" x2="120" y2="177" stroke="#06b6d4" strokeWidth="1.5" opacity="0.5" />
+            <line x1="108" y1="165" x2="132" y2="165" stroke="#06b6d4" strokeWidth="1.5" opacity="0.5" />
+            <line x1="113" y1="158" x2="127" y2="172" stroke="#06b6d4" strokeWidth="1.5" opacity="0.5" />
+            <line x1="127" y1="158" x2="113" y2="172" stroke="#06b6d4" strokeWidth="1.5" opacity="0.5" />
           </g>
 
           {/* Right wheel */}
           <g>
-            <circle cx="280" cy="165" r="30" fill="url(#wheelGrad)" stroke="#0891b2" strokeWidth="2" />
-            <circle cx="280" cy="165" r="22" fill="none" stroke="#06b6d4" strokeWidth="1.5" opacity="0.6" />
-            <circle cx="280" cy="165" r="14" fill="none" stroke="#06b6d4" strokeWidth="1.5" opacity="0.6" />
-            <line x1="280" y1="151" x2="280" y2="179" stroke="#06b6d4" strokeWidth="1.5" opacity="0.4" />
-            <line x1="266" y1="165" x2="294" y2="165" stroke="#06b6d4" strokeWidth="1.5" opacity="0.4" />
+            {/* Wheel shadow */}
+            <ellipse cx="280" cy="172" rx="28" ry="5" fill="#000000" opacity="0.3" />
+            {/* Wheel outer rim */}
+            <circle 
+              cx="280" 
+              cy="165" 
+              r="28" 
+              fill="url(#wheelGrad)" 
+              stroke="#0891b2" 
+              strokeWidth="2"
+            />
+            {/* Wheel inner rim */}
+            <circle 
+              cx="280" 
+              cy="165" 
+              r="20" 
+              fill="#164e63" 
+              stroke="#06b6d4" 
+              strokeWidth="1"
+              opacity="0.8"
+            />
+            {/* Wheel center */}
+            <circle 
+              cx="280" 
+              cy="165" 
+              r="12" 
+              fill="#0e7490" 
+              stroke="#06b6d4" 
+              strokeWidth="1.5"
+            />
+            {/* Wheel spokes */}
+            <line x1="280" y1="153" x2="280" y2="177" stroke="#06b6d4" strokeWidth="1.5" opacity="0.5" />
+            <line x1="268" y1="165" x2="292" y2="165" stroke="#06b6d4" strokeWidth="1.5" opacity="0.5" />
+            <line x1="273" y1="158" x2="287" y2="172" stroke="#06b6d4" strokeWidth="1.5" opacity="0.5" />
+            <line x1="287" y1="158" x2="273" y2="172" stroke="#06b6d4" strokeWidth="1.5" opacity="0.5" />
           </g>
         </g>
 
-        {/* Headlights - Premium glow effect */}
+        {/* Headlights - smooth circles with glow */}
         <g
           opacity={opacity.details}
           className="transition-all duration-700"
-          filter={completionPhase >= 3 ? "url(#headlightGlow)" : ""}
         >
-          <circle cx="75" cy="115" r="8" fill="#fbbf24" opacity={completionPhase >= 3 ? 0.9 : 0} />
-          <circle cx="75" cy="130" r="8" fill="#fbbf24" opacity={completionPhase >= 3 ? 0.9 : 0} />
-          <circle
-            cx="75"
-            cy="115"
-            r="8"
-            fill="none"
-            stroke="#fbbf24"
-            strokeWidth="2"
-            opacity={completionPhase >= 3 ? 0.6 : 0}
+          {/* Left headlight */}
+          <circle 
+            cx="70" 
+            cy="110" 
+            r="10" 
+            fill="#fbbf24" 
+            opacity={completionPhase >= 3 ? 1 : 0}
+            filter={completionPhase >= 3 ? "url(#headlightGlow)" : undefined}
           />
-          <circle
-            cx="75"
-            cy="130"
-            r="8"
-            fill="none"
-            stroke="#fbbf24"
-            strokeWidth="2"
-            opacity={completionPhase >= 3 ? 0.6 : 0}
+          <circle 
+            cx="70" 
+            cy="110" 
+            r="6" 
+            fill="#fef08a" 
+            opacity={completionPhase >= 3 ? 0.9 : 0}
+          />
+          
+          {/* Right headlight */}
+          <circle 
+            cx="70" 
+            cy="125" 
+            r="10" 
+            fill="#fbbf24" 
+            opacity={completionPhase >= 3 ? 1 : 0}
+            filter={completionPhase >= 3 ? "url(#headlightGlow)" : undefined}
+          />
+          <circle 
+            cx="70" 
+            cy="125" 
+            r="6" 
+            fill="#fef08a" 
+            opacity={completionPhase >= 3 ? 0.9 : 0}
           />
         </g>
 
-        {/* Completion aura - shows when ensemble is complete */}
+        {/* Completion aura - smooth pulsing circle */}
         {completionPhase >= 4 && (
-          <circle
-            cx="200"
-            cy="140"
-            r="160"
-            fill="none"
-            stroke="#06b6d4"
-            strokeWidth="1"
-            opacity="0.3"
-            className="animate-pulse"
-          />
+          <>
+            <circle
+              cx="200"
+              cy="140"
+              r="150"
+              fill="none"
+              stroke="#06b6d4"
+              strokeWidth="2"
+              opacity="0.2"
+              className="animate-pulse"
+            />
+            <circle
+              cx="200"
+              cy="140"
+              r="165"
+              fill="none"
+              stroke="#22d3ee"
+              strokeWidth="1"
+              opacity="0.15"
+              className="animate-pulse"
+              style={{ animationDelay: '0.5s' }}
+            />
+          </>
         )}
 
-        {/* Progress indicator at bottom */}
-        <text x="200" y="220" textAnchor="middle" className="text-sm" fill="#cbd5e1" fontSize="16" fontWeight="600">
+        {/* Progress indicator */}
+        <text 
+          x="200" 
+          y="235" 
+          textAnchor="middle" 
+          fill="#cbd5e1" 
+          fontSize="18" 
+          fontWeight="600"
+          style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
+        >
           Stage {currentStep + 1} of {steps.length}
         </text>
       </svg>
@@ -292,7 +443,15 @@ export const SpecialistTeamAnimation: React.FC = () => {
         <div className="relative p-8 sm:p-12 lg:p-16 bg-gradient-to-br from-slate-800/40 via-slate-900/60 to-slate-900/40 rounded-3xl border border-cyan-500/20 backdrop-blur-2xl shadow-2xl">
           {/* Premium Car Visualization */}
           <div className="flex justify-center mb-20">
-            <div className="relative w-full max-w-2xl h-72 bg-gradient-to-b from-slate-800/20 to-slate-900/40 rounded-2xl border border-cyan-500/10 flex items-center justify-center overflow-hidden">
+            <div 
+              className="relative w-full max-w-2xl h-72 bg-gradient-to-b from-slate-800/20 to-slate-900/40 rounded-2xl border border-cyan-500/10 flex items-center justify-center overflow-hidden"
+              style={{ 
+                imageRendering: 'auto',
+                backfaceVisibility: 'hidden',
+                transform: 'translateZ(0)',
+                willChange: 'auto'
+              }}
+            >
               {renderPremiumCar()}
             </div>
           </div>
