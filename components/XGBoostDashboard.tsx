@@ -7,6 +7,8 @@ import XGBoostVisuals from "./XGBoostVisuals"
 import ChevronLeftIcon from "./icons/ChevronLeftIcon"
 import ChevronRightIcon from "./icons/ChevronRightIcon"
 import { LOAN_DATA, SCATTER_PLOT_CONFIG } from "../constants"
+import { useNarration } from "../hooks/useNarration"
+import NarrationControls from "./NarrationControls"
 
 const XGBoostDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [scene, setScene] = useState(0)
@@ -36,6 +38,15 @@ const XGBoostDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         "The final picture shows XGBoost's expert decision landscape. The clean, sharp boundaries mean confident, accurate predictions. XGBoost balances speed, accuracy, and reliability—that's why top companies use it worldwide.",
     },
   ]
+
+  // === AUDIO NARRATION ===
+  const narration = useNarration({
+    scene,
+    getTextForScene: (s) => `${scenes[s].concept}. ${scenes[s].graphExplanation}`,
+    autoOnSceneChange: true,
+    autoAdvance: false,
+    onAdvance: () => setScene((x) => (x + 1) % scenes.length),
+  })
 
   const plotData = useMemo(
     () =>
@@ -81,86 +92,65 @@ const XGBoostDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-950 flex flex-col">
-      {/* Header */}
       <div className="pt-8 px-4 sm:px-8">
         <h1 className="text-3xl sm:text-4xl font-bold text-cyan-400 text-center mb-2">
           ⚡ XGBoost: The Super-Fast Expert System
         </h1>
-        <p className="text-center text-slate-400 text-sm">
-          Step {scene + 1} of {scenes.length}
-        </p>
+        <p className="text-center text-slate-400 text-sm">Step {scene + 1} of {scenes.length}</p>
       </div>
 
       <div className="flex-1 flex flex-col p-4 sm:p-8 gap-8 max-w-7xl mx-auto w-full">
-        {/* Story/Narrative Section - Prominent */}
         <div className="space-y-4">
-          {/* Concept */}
           <div className="bg-gradient-to-r from-cyan-900/30 to-blue-900/30 border-l-4 border-cyan-500 p-6 sm:p-8 rounded-lg ring-1 ring-cyan-500/20">
             <p className="text-slate-100 text-lg sm:text-xl font-semibold leading-relaxed">{scenes[scene].concept}</p>
           </div>
-
-          {/* Graph Explanation */}
           <div className="bg-slate-800/50 border-l-4 border-blue-500 p-6 sm:p-8 rounded-lg ring-1 ring-slate-700">
-            <h3 className="text-sm font-semibold text-blue-300 uppercase tracking-wider mb-2">
-              What's happening in the graph
-            </h3>
+            <h3 className="text-sm font-semibold text-blue-300 uppercase tracking-wider mb-2">What's happening in the graph</h3>
             <p className="text-slate-200 text-base leading-relaxed">{scenes[scene].graphExplanation}</p>
           </div>
         </div>
 
-        {/* Visualization Section - Updated layout for better balance */}
+        {/* Narration controls */}
+        <NarrationControls narration={narration} />
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          {/* Main Graph - Takes 2 columns */}
           <div className="lg:col-span-2 w-full">
             <div className="bg-slate-800 p-2 rounded-lg ring-1 ring-slate-700 shadow-lg">
               <div style={{ height: SCATTER_PLOT_CONFIG.height }}>{renderContent()}</div>
             </div>
           </div>
-
-          {/* Visual Explanation - Takes 1 column, much larger */}
           <div className="w-full bg-gradient-to-br from-slate-700 to-slate-800 p-8 rounded-lg ring-1 ring-slate-600 shadow-lg min-h-[600px] flex flex-col justify-center">
             <XGBoostVisuals scene={scene} />
           </div>
         </div>
       </div>
 
-      {/* Footer - Controls */}
       <div className="px-4 sm:px-8 pb-8">
         <div className="max-w-6xl mx-auto space-y-4">
-          {/* Progress Bar */}
           <div>
             <div className="flex justify-between mb-2">
               <span className="text-xs font-semibold text-slate-400">PROGRESS</span>
-              <span className="text-xs font-semibold text-slate-400">
-                {scene + 1}/{scenes.length}
-              </span>
+              <span className="text-xs font-semibold text-slate-400">{scene + 1}/{scenes.length}</span>
             </div>
             <div className="w-full bg-slate-700 rounded-full h-2.5">
               <div
                 className="bg-gradient-to-r from-cyan-500 via-blue-500 to-cyan-500 h-2.5 rounded-full transition-all duration-500 shadow-lg shadow-cyan-500/50"
                 style={{ width: `${((scene + 1) / scenes.length) * 100}%` }}
-              ></div>
+              />
             </div>
           </div>
 
-          {/* Navigation */}
           <div className="flex items-center justify-between gap-4 flex-wrap">
-            <button
-              onClick={onBack}
-              className="flex items-center gap-2 px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors font-medium text-sm"
-            >
+            <button onClick={onBack} className="flex items-center gap-2 px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors font-medium text-sm">
               <ChevronLeftIcon /> Back to Menu
             </button>
 
-            {/* Step Indicators */}
             <div className="flex gap-2 justify-center flex-wrap">
               {scenes.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setScene(i)}
-                  className={`w-2.5 h-2.5 rounded-full transition-all ${
-                    i === scene ? "bg-cyan-400 w-8" : "bg-slate-600 hover:bg-slate-500"
-                  }`}
+                  className={`w-2.5 h-2.5 rounded-full transition-all ${i === scene ? "bg-cyan-400 w-8" : "bg-slate-600 hover:bg-slate-500"}`}
                   title={`Step ${i + 1}`}
                 />
               ))}

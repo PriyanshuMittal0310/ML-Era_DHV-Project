@@ -8,6 +8,8 @@ import ScatterPlot from "./ScatterPlot"
 import AdaBoostVisuals from "./AdaBoostVisuals"
 import ChevronLeftIcon from "./icons/ChevronLeftIcon"
 import ChevronRightIcon from "./icons/ChevronRightIcon"
+import { useNarration } from "../hooks/useNarration"
+import NarrationControls from "./NarrationControls"
 
 const AdaBoostDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [scene, setScene] = useState(0)
@@ -42,10 +44,18 @@ const AdaBoostDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     },
   ]
 
+  // === AUDIO NARRATION ===
+  const narration = useNarration({
+    scene,
+    getTextForScene: (s) => `${scenes[s].concept}. ${scenes[s].graphExplanation}`,
+    autoOnSceneChange: true,
+    autoAdvance: false, // set true if you want it to auto move to next scene when narration finishes
+    onAdvance: () => setScene((x) => (x + 1) % scenes.length),
+  })
+
   const getClassification = (loan: LoanApplication, sc: number) => {
     const alexRule = loan.creditScore > 680
     const bettyRule = loan.annualIncome > 80
-
     if (sc === 0) return undefined
     if (sc === 1) return alexRule
     if (sc === 2) return alexRule
@@ -58,14 +68,9 @@ const AdaBoostDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       const prediction = getClassification(loan, scene)
       const isMistake = prediction !== undefined && prediction !== loan.paidBack
       const isCorrect = prediction !== undefined && prediction === loan.paidBack
-
       let displaySize = 5
-      if ((scene === 1 || scene === 2) && isMistake) {
-        displaySize = 12
-      }
-
+      if ((scene === 1 || scene === 2) && isMistake) displaySize = 12
       const displayColor = loan.paidBack ? "rgba(59, 130, 246, 0.8)" : "rgba(239, 68, 68, 0.8)"
-
       return {
         ...loan,
         displayColor,
@@ -82,22 +87,18 @@ const AdaBoostDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       { color: "rgba(59, 130, 246, 1)", label: "Paid Back (Risk 0%)", shape: "circle" },
       { color: "rgba(239, 68, 68, 1)", label: "Defaulted (Risk 100%)", shape: "circle" },
     ]
-    if (scene === 1 || scene === 2) {
-      base.push({ color: "yellow", label: "Mistakes (Bigger Weight)", shape: "square" })
-    }
-    if (scene === 4) {
-      base.push({ color: "white", label: "Prediction Boundary", shape: "line" })
-    }
+    if (scene === 1 || scene === 2) base.push({ color: "yellow", label: "Mistakes (Bigger Weight)", shape: "square" })
+    if (scene === 4) base.push({ color: "white", label: "Prediction Boundary", shape: "line" })
     return base
   }, [scene])
 
-  const decisionBoundaries: DecisionBoundary[] = useMemo(() => {
+  const decisionBoundaries = useMemo(() => {
     if (scene === 0 || scene === 4) return []
-    if (scene === 1 || scene === 2) return [{ type: "vertical", value: 680, label: "Alex's Rule" }]
+    if (scene === 1 || scene === 2) return [{ type: "vertical", value: 680, label: "Alex's Rule" } as const]
     if (scene >= 3)
       return [
-        { type: "vertical", value: 680, label: "Alex" },
-        { type: "horizontal", value: 80, label: "Betty" },
+        { type: "vertical", value: 680, label: "Alex" } as const,
+        { type: "horizontal", value: 80, label: "Betty" } as const,
       ]
     return []
   }, [scene])
@@ -113,31 +114,26 @@ const AdaBoostDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           {scene === 3 && "🤝 The Team Decides"}
           {scene === 4 && "🏆 The Expert System"}
         </h1>
-        <p className="text-center text-slate-400 text-sm">
-          Step {scene + 1} of {scenes.length}
-        </p>
+        <p className="text-center text-slate-400 text-sm">Step {scene + 1} of {scenes.length}</p>
       </div>
 
       <div className="flex-1 flex flex-col p-4 sm:p-8 gap-8 max-w-7xl mx-auto w-full">
-        {/* Story/Narrative Section - Prominent and spacious */}
+        {/* Story / Narrative */}
         <div className="space-y-4">
-          {/* Concept */}
           <div className="bg-gradient-to-r from-cyan-900/30 to-blue-900/30 border-l-4 border-cyan-500 p-6 sm:p-8 rounded-lg ring-1 ring-cyan-500/20">
             <p className="text-slate-100 text-lg sm:text-xl font-semibold leading-relaxed">{scenes[scene].concept}</p>
           </div>
-
-          {/* Graph Explanation */}
           <div className="bg-slate-800/50 border-l-4 border-blue-500 p-6 sm:p-8 rounded-lg ring-1 ring-slate-700">
-            <h3 className="text-sm font-semibold text-blue-300 uppercase tracking-wider mb-2">
-              What's happening in the graph
-            </h3>
+            <h3 className="text-sm font-semibold text-blue-300 uppercase tracking-wider mb-2">What's happening in the graph</h3>
             <p className="text-slate-200 text-base leading-relaxed">{scenes[scene].graphExplanation}</p>
           </div>
         </div>
 
-        {/* Visualization Section - Updated layout for better balance */}
+        {/* Narration controls */}
+        <NarrationControls narration={narration} />
+
+        {/* Visualization */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          {/* Main Graph - Takes 2 columns */}
           <div className="lg:col-span-2 w-full">
             <div className="bg-slate-800 p-2 rounded-lg ring-1 ring-slate-700 shadow-lg">
               <ScatterPlot
@@ -148,51 +144,41 @@ const AdaBoostDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               />
             </div>
           </div>
-
-          {/* Visual Explanation - Takes 1 column, much larger */}
           <div className="w-full bg-gradient-to-br from-slate-700 to-slate-800 p-8 rounded-lg ring-1 ring-slate-600 shadow-lg min-h-[600px] flex flex-col justify-center">
             <AdaBoostVisuals scene={scene} />
           </div>
         </div>
       </div>
 
-      {/* Footer - Controls */}
+      {/* Footer / Controls */}
       <div className="px-4 sm:px-8 pb-8">
         <div className="max-w-6xl mx-auto space-y-4">
-          {/* Progress Bar */}
+          {/* Progress */}
           <div>
             <div className="flex justify-between mb-2">
               <span className="text-xs font-semibold text-slate-400">PROGRESS</span>
-              <span className="text-xs font-semibold text-slate-400">
-                {scene + 1}/{scenes.length}
-              </span>
+              <span className="text-xs font-semibold text-slate-400">{scene + 1}/{scenes.length}</span>
             </div>
             <div className="w-full bg-slate-700 rounded-full h-2.5">
               <div
                 className="bg-gradient-to-r from-cyan-500 via-blue-500 to-cyan-500 h-2.5 rounded-full transition-all duration-500 shadow-lg shadow-cyan-500/50"
                 style={{ width: `${((scene + 1) / scenes.length) * 100}%` }}
-              ></div>
+              />
             </div>
           </div>
 
-          {/* Navigation */}
+          {/* Nav */}
           <div className="flex items-center justify-between gap-4 flex-wrap">
-            <button
-              onClick={onBack}
-              className="flex items-center gap-2 px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors font-medium text-sm"
-            >
+            <button onClick={onBack} className="flex items-center gap-2 px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors font-medium text-sm">
               <ChevronLeftIcon /> Back to Menu
             </button>
 
-            {/* Step Indicators */}
             <div className="flex gap-2 justify-center flex-wrap">
               {scenes.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setScene(i)}
-                  className={`w-2.5 h-2.5 rounded-full transition-all ${
-                    i === scene ? "bg-cyan-400 w-8" : "bg-slate-600 hover:bg-slate-500"
-                  }`}
+                  className={`w-2.5 h-2.5 rounded-full transition-all ${i === scene ? "bg-cyan-400 w-8" : "bg-slate-600 hover:bg-slate-500"}`}
                   title={`Step ${i + 1}`}
                 />
               ))}
