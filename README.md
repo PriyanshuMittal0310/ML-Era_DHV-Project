@@ -122,6 +122,23 @@ This project currently does not require environment variables by default. If you
 - Delete lockfiles except the one for your chosen package manager to avoid conflicts (e.g., keep only `package-lock.json` if using npm).
 - If styles don’t load, confirm Tailwind is set up and `globals.css` or relevant imports are present in your root layout.
 
+## Screenshots
+
+![Screenshot 2025-11-11 010653](./public/Screenshot 2025-11-11 010653.png)
+![Screenshot 2025-11-11 010808](./public/Screenshot 2025-11-11 010808.png)
+![Screenshot 2025-11-11 011106](./public/Screenshot 2025-11-11 011106.png)
+![Screenshot 2025-11-11 011235](./public/Screenshot 2025-11-11 011235.png)
+![Screenshot 2025-11-11 011312](./public/Screenshot 2025-11-11 011312.png)
+![Screenshot 2025-11-11 011342](./public/Screenshot 2025-11-11 011342.png)
+![Screenshot 2025-11-11 011732](./public/Screenshot 2025-11-11 011732.png)
+![Screenshot 2025-11-11 011946](./public/Screenshot 2025-11-11 011946.png)
+![boosting_1](./public/boosting_1.png)
+![boosting_2](./public/boosting_2.png)
+![boosting_3](./public/boosting_3.png)
+![boosting_4](./public/boosting_4.png)
+![boosting_5](./public/boosting_5.png)
+![boosting_6](./public/boosting_6.png)
+
 ## License
 
 This project is licensed under the terms of the LICENSE file included in the repository.
